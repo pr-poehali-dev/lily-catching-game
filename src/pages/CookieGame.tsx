@@ -222,8 +222,12 @@ export default function CookieGame() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-12 h-12 bg-[#8B4513] rounded-full flex items-center justify-center text-2xl border-4 border-[#FFD700]">
-              🍪
+            <div className="w-12 h-12 rounded-full flex items-center justify-center border-4 border-[#FFD700] overflow-hidden bg-white">
+              <img 
+                src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" 
+                alt="Pure Vanilla Cookie"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <p className="text-sm font-bold text-[#8B4513]" style={{ fontFamily: 'Fredoka One, cursive' }}>
@@ -231,8 +235,9 @@ export default function CookieGame() {
               </p>
               <div className="flex items-center gap-1">
                 <span className="text-xs font-bold text-[#8B4513]">SCORE</span>
-                <span className="text-sm font-black text-[#FFD700]" style={{ fontFamily: 'Fredoka One, cursive' }}>
-                  🍪 {score}
+                <span className="text-sm font-black text-[#FFD700] flex items-center gap-1" style={{ fontFamily: 'Fredoka One, cursive' }}>
+                  <img src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" alt="" className="w-4 h-4 rounded-full object-cover" />
+                  {score}
                 </span>
               </div>
               <div className="flex items-center gap-1 mt-0.5">
@@ -321,7 +326,7 @@ export default function CookieGame() {
                 textShadow: '4px 4px 0 #8B4513'
               }}
             >
-              {highScore} 🍪
+              {highScore} <img src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" alt="" className="inline w-12 h-12 rounded-full object-cover ml-2" />
             </div>
             <Button
               onClick={() => setShowRecords(false)}
@@ -362,7 +367,7 @@ export default function CookieGame() {
                 textShadow: '2px 2px 0 #8B4513'
               }}
             >
-              Score: {score} 🍪
+              Score: {score} <img src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" alt="" className="inline w-8 h-8 rounded-full object-cover" />
             </div>
             {score > highScore && (
               <div 
@@ -437,7 +442,7 @@ export default function CookieGame() {
             ))}
 
             <div
-              className="absolute text-5xl transition-all duration-100 z-10"
+              className="absolute transition-all duration-100 z-10"
               style={{
                 left: `${playerX}%`,
                 bottom: '5%',
@@ -446,7 +451,11 @@ export default function CookieGame() {
               }}
             >
               <div className="relative">
-                <div className="text-6xl">🍪</div>
+                <img 
+                  src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" 
+                  alt="Pure Vanilla Cookie"
+                  className="w-20 h-20 object-cover"
+                />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-3xl">🧺</div>
               </div>
             </div>
