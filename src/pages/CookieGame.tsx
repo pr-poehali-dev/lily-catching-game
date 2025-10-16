@@ -224,9 +224,9 @@ export default function CookieGame() {
           <div className="flex items-center gap-2">
             <div className="w-12 h-12 rounded-full flex items-center justify-center border-4 border-[#FFD700] overflow-hidden bg-white">
               <img 
-                src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" 
+                src="https://cdn.poehali.dev/files/ba984b48-624a-4564-91aa-f6914333d286.png" 
                 alt="Pure Vanilla Cookie"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
@@ -236,7 +236,7 @@ export default function CookieGame() {
               <div className="flex items-center gap-1">
                 <span className="text-xs font-bold text-[#8B4513]">SCORE</span>
                 <span className="text-sm font-black text-[#FFD700] flex items-center gap-1" style={{ fontFamily: 'Fredoka One, cursive' }}>
-                  <img src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" alt="" className="w-4 h-4 rounded-full object-cover" />
+                  <img src="https://cdn.poehali.dev/files/ba984b48-624a-4564-91aa-f6914333d286.png" alt="" className="w-4 h-4 rounded-full object-contain" />
                   {score}
                 </span>
               </div>
@@ -326,7 +326,7 @@ export default function CookieGame() {
                 textShadow: '4px 4px 0 #8B4513'
               }}
             >
-              {highScore} <img src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" alt="" className="inline w-12 h-12 rounded-full object-cover ml-2" />
+              {highScore} <img src="https://cdn.poehali.dev/files/ba984b48-624a-4564-91aa-f6914333d286.png" alt="" className="inline w-12 h-12 rounded-full object-contain ml-2" />
             </div>
             <Button
               onClick={() => setShowRecords(false)}
@@ -367,7 +367,7 @@ export default function CookieGame() {
                 textShadow: '2px 2px 0 #8B4513'
               }}
             >
-              Score: {score} <img src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" alt="" className="inline w-8 h-8 rounded-full object-cover" />
+              Score: {score} <img src="https://cdn.poehali.dev/files/ba984b48-624a-4564-91aa-f6914333d286.png" alt="" className="inline w-8 h-8 rounded-full object-contain" />
             </div>
             {score > highScore && (
               <div 
@@ -429,15 +429,19 @@ export default function CookieGame() {
             {enemies.map(enemy => (
               <div
                 key={enemy.id}
-                className="absolute text-5xl animate-pulse"
+                className="absolute animate-pulse"
                 style={{
                   left: `${enemy.x}%`,
                   top: `${enemy.y}%`,
                   transform: 'translate(-50%, -50%)',
-                  filter: 'drop-shadow(0 4px 8px rgba(139, 0, 139, 0.5))'
+                  filter: 'drop-shadow(0 4px 8px rgba(0, 50, 139, 0.6))'
                 }}
               >
-                🦹‍♂️
+                <img 
+                  src="https://cdn.poehali.dev/files/1e024d09-0691-446f-b089-929f7a6d0922.png" 
+                  alt="Shadow Milk Cookie"
+                  className="w-16 h-16 object-contain"
+                />
               </div>
             ))}
 
@@ -452,9 +456,9 @@ export default function CookieGame() {
             >
               <div className="relative">
                 <img 
-                  src="https://cdn.poehali.dev/files/4d49f802-f8c7-407f-ba65-0910993a1d75.jpg" 
+                  src="https://cdn.poehali.dev/files/ba984b48-624a-4564-91aa-f6914333d286.png" 
                   alt="Pure Vanilla Cookie"
-                  className="w-20 h-20 object-cover"
+                  className="w-20 h-20 object-contain"
                 />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-3xl">🧺</div>
               </div>
