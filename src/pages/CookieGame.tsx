@@ -8,6 +8,7 @@ interface GameObject {
   x: number
   y: number
   speed: number
+  type?: 'lily' | 'magnet' | 'life'
 }
 
 export default function CookieGame() {
@@ -18,9 +19,12 @@ export default function CookieGame() {
   const [playerX, setPlayerX] = useState(50)
   const [lilies, setLilies] = useState<GameObject[]>([])
   const [enemies, setEnemies] = useState<GameObject[]>([])
+  const [powerups, setPowerups] = useState<GameObject[]>([])
   const [isPaused, setIsPaused] = useState(false)
   const [highScore, setHighScore] = useState(0)
   const [showRecords, setShowRecords] = useState(false)
+  const [hasMagnet, setHasMagnet] = useState(false)
+  const magnetTimerRef = useRef<number>()
 
   useEffect(() => {
     const saved = localStorage.getItem('cookieRunHighScore')
@@ -33,6 +37,7 @@ export default function CookieGame() {
   const animationFrameRef = useRef<number>()
   const lastSpawnRef = useRef(0)
   const enemySpawnRef = useRef(0)
+  const powerupSpawnRef = useRef(0)
 
   useEffect(() => {
     if (!gameStarted || isPaused || gameOver) return
@@ -43,7 +48,8 @@ export default function CookieGame() {
           id: Date.now(),
           x: Math.random() * 90 + 5,
           y: -5,
-          speed: 1.5 + Math.random() * 1
+          speed: 1.5 + Math.random() * 1,
+          type: 'lily'
         }])
         lastSpawnRef.current = timestamp
       }
@@ -58,15 +64,40 @@ export default function CookieGame() {
         enemySpawnRef.current = timestamp
       }
 
-      setLilies(prev => prev.map(lily => ({
-        ...lily,
-        y: lily.y + lily.speed
-      })).filter(lily => lily.y < 100))
+      if (timestamp - powerupSpawnRef.current > 8000) {
+        const powerupType = Math.random() > 0.5 ? 'magnet' : 'life'
+        setPowerups(prev => [...prev, {
+          id: Date.now(),
+          x: Math.random() * 90 + 5,
+          y: -5,
+          speed: 1.2,
+          type: powerupType
+        }])
+        powerupSpawnRef.current = timestamp
+      }
+
+      setLilies(prev => prev.map(lily => {
+        let newX = lily.x
+        if (hasMagnet && lily.y > 40) {
+          const distance = playerX - lily.x
+          newX = lily.x + distance * 0.08
+        }
+        return {
+          ...lily,
+          x: newX,
+          y: lily.y + lily.speed
+        }
+      }).filter(lily => lily.y < 100))
 
       setEnemies(prev => prev.map(enemy => ({
         ...enemy,
         y: enemy.y + enemy.speed
       })).filter(enemy => enemy.y < 100))
+
+      setPowerups(prev => prev.map(powerup => ({
+        ...powerup,
+        y: powerup.y + powerup.speed
+      })).filter(powerup => powerup.y < 100))
 
       animationFrameRef.current = requestAnimationFrame(gameLoop)
     }
@@ -78,7 +109,7 @@ export default function CookieGame() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [gameStarted, isPaused, gameOver])
+  }, [gameStarted, isPaused, gameOver, hasMagnet, playerX])
 
   useEffect(() => {
     if (!gameStarted || gameOver) return
@@ -99,6 +130,32 @@ export default function CookieGame() {
 
         if (caught.length > 0) {
           setScore(s => s + caught.length)
+          return remaining.filter((_, i) => !caught.includes(i))
+        }
+        return remaining
+      })
+
+      setPowerups(prev => {
+        const remaining = [...prev]
+        const caught: number[] = []
+
+        remaining.forEach((powerup, index) => {
+          if (powerup.y > 80 && powerup.y < 95) {
+            const distance = Math.abs(powerup.x - playerX)
+            if (distance < 12) {
+              caught.push(index)
+              if (powerup.type === 'magnet') {
+                setHasMagnet(true)
+                if (magnetTimerRef.current) clearTimeout(magnetTimerRef.current)
+                magnetTimerRef.current = window.setTimeout(() => setHasMagnet(false), 5000)
+              } else if (powerup.type === 'life') {
+                setLives(l => Math.min(l + 1, 5))
+              }
+            }
+          }
+        })
+
+        if (caught.length > 0) {
           return remaining.filter((_, i) => !caught.includes(i))
         }
         return remaining
@@ -160,10 +217,14 @@ export default function CookieGame() {
     setLives(3)
     setLilies([])
     setEnemies([])
+    setPowerups([])
     setPlayerX(50)
     setShowRecords(false)
+    setHasMagnet(false)
+    if (magnetTimerRef.current) clearTimeout(magnetTimerRef.current)
     lastSpawnRef.current = 0
     enemySpawnRef.current = 0
+    powerupSpawnRef.current = 0
   }
 
   const togglePause = () => {
@@ -249,12 +310,19 @@ export default function CookieGame() {
             </div>
           </div>
           
-          <div className="flex gap-1">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="text-2xl">
-                {i < lives ? '❤️' : '🖤'}
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="text-xl">
+                  {i < lives ? '❤️' : '🖤'}
+                </div>
+              ))}
+            </div>
+            {hasMagnet && (
+              <div className="text-xs font-bold text-purple-600 animate-pulse" style={{ fontFamily: 'Fredoka One, cursive' }}>
+                🧲 MAGNET
               </div>
-            ))}
+            )}
           </div>
         </div>
       </Card>
@@ -414,15 +482,36 @@ export default function CookieGame() {
             {lilies.map(lily => (
               <div
                 key={lily.id}
-                className="absolute text-4xl transition-transform"
+                className="absolute transition-all"
                 style={{
                   left: `${lily.x}%`,
                   top: `${lily.y}%`,
-                  transform: 'translate(-50%, -50%) rotate(45deg)',
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                  transform: 'translate(-50%, -50%)',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                 }}
               >
-                🌸
+                <img 
+                  src="https://cdn.poehali.dev/files/cf94fa06-37ce-491b-baa3-e47a0fddb58e.png" 
+                  alt="Lily"
+                  className="w-10 h-10 object-contain"
+                />
+              </div>
+            ))}
+
+            {powerups.map(powerup => (
+              <div
+                key={powerup.id}
+                className="absolute animate-bounce"
+                style={{
+                  left: `${powerup.x}%`,
+                  top: `${powerup.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                  filter: 'drop-shadow(0 4px 8px rgba(255, 215, 0, 0.6))'
+                }}
+              >
+                <div className="text-4xl">
+                  {powerup.type === 'magnet' ? '🧲' : '❤️'}
+                </div>
               </div>
             ))}
 
@@ -446,19 +535,21 @@ export default function CookieGame() {
             ))}
 
             <div
-              className="absolute transition-all duration-100 z-10"
+              className="absolute z-10"
               style={{
                 left: `${playerX}%`,
                 bottom: '5%',
                 transform: 'translateX(-50%)',
-                filter: 'drop-shadow(0 4px 8px rgba(255, 215, 0, 0.5))'
+                filter: 'drop-shadow(0 4px 8px rgba(255, 215, 0, 0.5))',
+                transition: 'left 0.1s linear'
               }}
             >
               <div className="relative">
                 <img 
                   src="https://cdn.poehali.dev/files/ba984b48-624a-4564-91aa-f6914333d286.png" 
                   alt="Pure Vanilla Cookie"
-                  className="w-20 h-20 object-contain"
+                  className="w-24 h-24 object-contain"
+                  style={{ imageRendering: 'crisp-edges' }}
                 />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-3xl">🧺</div>
               </div>
