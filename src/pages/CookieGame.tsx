@@ -19,6 +19,15 @@ export default function CookieGame() {
   const [lilies, setLilies] = useState<GameObject[]>([])
   const [enemies, setEnemies] = useState<GameObject[]>([])
   const [isPaused, setIsPaused] = useState(false)
+  const [highScore, setHighScore] = useState(0)
+  const [showRecords, setShowRecords] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('cookieRunHighScore')
+    if (saved) {
+      setHighScore(parseInt(saved))
+    }
+  }, [])
   
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const animationFrameRef = useRef<number>()
@@ -106,6 +115,13 @@ export default function CookieGame() {
                 const newLives = l - 1
                 if (newLives <= 0) {
                   setGameOver(true)
+                  setScore(currentScore => {
+                    if (currentScore > highScore) {
+                      setHighScore(currentScore)
+                      localStorage.setItem('cookieRunHighScore', currentScore.toString())
+                    }
+                    return currentScore
+                  })
                 }
                 return newLives
               })
@@ -145,6 +161,7 @@ export default function CookieGame() {
     setLilies([])
     setEnemies([])
     setPlayerX(50)
+    setShowRecords(false)
     lastSpawnRef.current = 0
     enemySpawnRef.current = 0
   }
@@ -218,6 +235,12 @@ export default function CookieGame() {
                   🍪 {score}
                 </span>
               </div>
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-xs font-bold text-[#2D1B69]">BEST</span>
+                <span className="text-xs font-black text-[#2D1B69]" style={{ fontFamily: 'Fredoka One, cursive' }}>
+                  ⭐ {highScore}
+                </span>
+              </div>
             </div>
           </div>
           
@@ -242,8 +265,8 @@ export default function CookieGame() {
         onMouseMove={handleMouseMove}
         onTouchMove={handleTouchMove}
       >
-        {!gameStarted && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-20">
+        {!gameStarted && !showRecords && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm z-20 gap-4">
             <Button
               onClick={startGame}
               size="lg"
@@ -258,6 +281,62 @@ export default function CookieGame() {
               }}
             >
               START GAME
+            </Button>
+            <Button
+              onClick={() => setShowRecords(true)}
+              size="lg"
+              className="text-xl px-10 py-6 rounded-full font-black"
+              style={{
+                fontFamily: 'Fredoka One, cursive',
+                background: 'linear-gradient(135deg, #2D1B69 0%, #6E59A5 100%)',
+                border: '4px solid #8B4513',
+                boxShadow: '0 6px 0 #6B3410',
+                color: '#fff',
+                textShadow: '2px 2px 0 #000'
+              }}
+            >
+              ⭐ RECORDS
+            </Button>
+          </div>
+        )}
+
+        {showRecords && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-20 p-8">
+            <div 
+              className="text-4xl font-black mb-6"
+              style={{
+                fontFamily: 'Fredoka One, cursive',
+                color: '#FFD700',
+                textShadow: '3px 3px 0 #8B4513, -2px -2px 0 #fff',
+                WebkitTextStroke: '2px #8B4513'
+              }}
+            >
+              ⭐ BEST SCORE ⭐
+            </div>
+            <div
+              className="text-6xl font-black mb-8"
+              style={{
+                fontFamily: 'Fredoka One, cursive',
+                color: '#FF699B',
+                textShadow: '4px 4px 0 #8B4513'
+              }}
+            >
+              {highScore} 🍪
+            </div>
+            <Button
+              onClick={() => setShowRecords(false)}
+              size="lg"
+              className="text-xl px-10 py-6 rounded-full font-black"
+              style={{
+                fontFamily: 'Fredoka One, cursive',
+                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                border: '4px solid #8B4513',
+                boxShadow: '0 6px 0 #6B3410',
+                color: '#fff',
+                textShadow: '2px 2px 0 #8B4513'
+              }}
+            >
+              BACK
             </Button>
           </div>
         )}
@@ -276,7 +355,7 @@ export default function CookieGame() {
               GAME OVER!
             </div>
             <div 
-              className="text-3xl font-bold mb-6"
+              className="text-3xl font-bold mb-2"
               style={{
                 fontFamily: 'Fredoka One, cursive',
                 color: '#FFD700',
@@ -284,6 +363,28 @@ export default function CookieGame() {
               }}
             >
               Score: {score} 🍪
+            </div>
+            {score > highScore && (
+              <div 
+                className="text-2xl font-bold mb-4 animate-pulse"
+                style={{
+                  fontFamily: 'Fredoka One, cursive',
+                  color: '#00FF00',
+                  textShadow: '2px 2px 0 #006600'
+                }}
+              >
+                🎉 NEW RECORD! 🎉
+              </div>
+            )}
+            <div 
+              className="text-xl font-bold mb-6"
+              style={{
+                fontFamily: 'Fredoka One, cursive',
+                color: '#2D1B69',
+                textShadow: '1px 1px 0 #fff'
+              }}
+            >
+              Best: {highScore} ⭐
             </div>
             <Button
               onClick={startGame}
